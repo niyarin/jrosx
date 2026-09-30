@@ -190,7 +190,7 @@ public class Main {
 
         try (Node node = new Node("jros_echo");
              Subscription<String_> sub = node.createSubscription(
-                     topicName, String_.class, String_.TYPE_SUPPORT)) {
+                     topicName, String_.class)) {
 
             while (true) {
                 List<Sample<String_>> samples = sub.take();
@@ -224,7 +224,7 @@ public class Main {
 
         try (Node node = new Node("jros_pub");
              Publisher<String_> pub = node.createPublisher(
-                     topicName, String_.class, String_.TYPE_SUPPORT)) {
+                     topicName, String_.class)) {
 
             // Give time for discovery
             Thread.sleep(500);

@@ -32,11 +32,33 @@ public class Node implements AutoCloseable {
         return name;
     }
 
+    /**
+     * Creates a publisher using CDR serialization and a ROS type name derived
+     * from the record's package and class name (e.g. std_msgs.msg.String_).
+     *
+     * @param topicName ROS topic name, e.g. /chatter or chatter
+     * @param type message record class in a ROS message package such as std_msgs.msg
+     */
+    public <T extends Record> Publisher<T> createPublisher(String topicName, Class<T> type) {
+        return createPublisher(topicName, type, Ros2TypeSupport.of(type));
+    }
+
     /** Creates a publisher for a ROS topic name, e.g. /chatter or chatter. */
     public <T> Publisher<T> createPublisher(String topicName, Class<T> type, TypeSupport<T> typeSupport) {
         Topic<T> topic = participant.createTopic(toDdsTopicName(topicName), type, typeSupport);
         DataWriter<T> writer = ddsPub.createDataWriter(topic, Ros2QosProfiles.defaultWriter());
         return new Publisher<>(topicName, writer);
+    }
+
+    /**
+     * Creates a subscription using CDR serialization and a ROS type name derived
+     * from the record's package and class name (e.g. std_msgs.msg.String_).
+     *
+     * @param topicName ROS topic name, e.g. /chatter or chatter
+     * @param type message record class in a ROS message package such as std_msgs.msg
+     */
+    public <T extends Record> Subscription<T> createSubscription(String topicName, Class<T> type) {
+        return createSubscription(topicName, type, Ros2TypeSupport.of(type));
     }
 
     /** Creates a subscription for a ROS topic name, e.g. /chatter or chatter. */
