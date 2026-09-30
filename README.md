@@ -18,6 +18,31 @@ jrosx service server /add_two_ints example_interfaces/srv/AddTwoInts
 jrosx service call /add_two_ints example_interfaces/srv/AddTwoInts "{a: 1, b: 2}"
 ```
 
+### Make Node
+
+```java
+import jrosx.Node;
+import jrosx.Publisher;
+import std_msgs.msg.String_;
+
+public class HelloWorldPublisher {
+  public static void main(String[] args) throws Exception {
+      try (Node node = new Node("hello_world_publisher");
+           Publisher<String_> publisher = node.createPublisher(
+                   "/chatter", String_.class, String_.TYPE_SUPPORT)) {
+
+          Thread.sleep(500);
+
+          while (!Thread.currentThread().isInterrupted()) {
+              publisher.publish(new String_("Hello World"));
+              System.out.println("Published: Hello World");
+              Thread.sleep(1000);
+          }
+      }
+  }
+}
+```
+
 
 ## LICENSE
 
