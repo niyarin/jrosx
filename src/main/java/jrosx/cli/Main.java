@@ -185,7 +185,7 @@ public class Main {
             return;
         }
 
-        String topicName = toInternalTopicName(args[2]);
+        String topicName = args[2];
         System.out.println("Subscribing to: " + topicName);
 
         try (Node node = new Node("jros_echo");
@@ -208,7 +208,7 @@ public class Main {
             return;
         }
 
-        String topicName = toInternalTopicName(args[2]);
+        String topicName = args[2];
         String typeName = args[3];
         String dataArg = args[4];
 
@@ -238,14 +238,6 @@ public class Main {
                 count++;
             }
         }
-    }
-
-    private static String toInternalTopicName(String rosTopicName) {
-        // ROS2 topic /chatter -> DDS topic rt/chatter
-        if (rosTopicName.startsWith("/")) {
-            return "rt" + rosTopicName;
-        }
-        return "rt/" + rosTopicName;
     }
 
     private static String parseDataArg(String dataArg) {

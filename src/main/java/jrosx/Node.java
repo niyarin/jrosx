@@ -32,16 +32,22 @@ public class Node implements AutoCloseable {
         return name;
     }
 
+    /** Creates a publisher for a ROS topic name, e.g. /chatter or chatter. */
     public <T> Publisher<T> createPublisher(String topicName, Class<T> type, TypeSupport<T> typeSupport) {
-        Topic<T> topic = participant.createTopic(topicName, type, typeSupport);
+        Topic<T> topic = participant.createTopic(toDdsTopicName(topicName), type, typeSupport);
         DataWriter<T> writer = ddsPub.createDataWriter(topic, Ros2QosProfiles.defaultWriter());
         return new Publisher<>(topicName, writer);
     }
 
+    /** Creates a subscription for a ROS topic name, e.g. /chatter or chatter. */
     public <T> Subscription<T> createSubscription(String topicName, Class<T> type, TypeSupport<T> typeSupport) {
-        Topic<T> topic = participant.createTopic(topicName, type, typeSupport);
+        Topic<T> topic = participant.createTopic(toDdsTopicName(topicName), type, typeSupport);
         DataReader<T> reader = ddsSub.createDataReader(topic, Ros2QosProfiles.defaultReader());
         return new Subscription<>(topicName, reader);
+    }
+
+    private static String toDdsTopicName(String topicName) {
+        return topicName.startsWith("/") ? "rt" + topicName : "rt/" + topicName;
     }
 
     /**
