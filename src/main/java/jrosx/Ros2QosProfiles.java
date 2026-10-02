@@ -11,6 +11,18 @@ public final class Ros2QosProfiles {
 
     private Ros2QosProfiles() {}
 
+    /** ROS 2 action status: reliable, transient local, keep last 1. */
+    public static DataWriterQos actionStatusWriter() {
+        return DataWriterQos.builder().reliability(ReliabilityQosPolicy.reliable())
+                .durability(DurabilityQosPolicy.transientLocal()).history(HistoryQosPolicy.keepLast(1)).build();
+    }
+
+    public static DataReaderQos actionStatusReader() {
+        return DataReaderQos.builder().reliability(ReliabilityQosPolicy.reliable())
+                .durability(DurabilityQosPolicy.transientLocal()).history(HistoryQosPolicy.keepLast(1)).build();
+    }
+
+
     /**
      * Default QoS profile matching ROS 2 defaults.
      * Reliability: RELIABLE, Durability: VOLATILE, History: KEEP_LAST(10)
