@@ -79,10 +79,14 @@ public class Node implements AutoCloseable {
         return topicName.startsWith("/") ? "rt" + topicName : "rt/" + topicName;
     }
 
+    private static String toDdsServiceTopicName(String prefix, String serviceName, String suffix) {
+        return prefix + (serviceName.startsWith("/") ? serviceName : "/" + serviceName) + suffix;
+    }
+
     /**
      * Create a service client.
      *
-     * @param serviceName service name (e.g., "add_two_ints")
+     * @param serviceName service name (e.g., "add_two_ints" or "/add_two_ints")
      * @param requestType request message class
      * @param responseType response message class
      * @param requestTypeSupport type support for request
@@ -95,8 +99,8 @@ public class Node implements AutoCloseable {
             TypeSupport<Req> requestTypeSupport,
             TypeSupport<Res> responseTypeSupport) {
 
-        String requestTopicName = "rq/" + serviceName + "Request";
-        String responseTopicName = "rr/" + serviceName + "Reply";
+        String requestTopicName = toDdsServiceTopicName("rq", serviceName, "Request");
+        String responseTopicName = toDdsServiceTopicName("rr", serviceName, "Reply");
 
         Topic<Req> requestTopic = participant.createTopic(requestTopicName, requestType, requestTypeSupport);
         Topic<Res> responseTopic = participant.createTopic(responseTopicName, responseType, responseTypeSupport);
@@ -110,7 +114,7 @@ public class Node implements AutoCloseable {
     /**
      * Create a service server.
      *
-     * @param serviceName service name (e.g., "add_two_ints")
+     * @param serviceName service name (e.g., "add_two_ints" or "/add_two_ints")
      * @param requestType request message class
      * @param responseType response message class
      * @param requestTypeSupport type support for request
@@ -125,8 +129,8 @@ public class Node implements AutoCloseable {
             TypeSupport<Res> responseTypeSupport,
             Function<Req, Res> handler) {
 
-        String requestTopicName = "rq/" + serviceName + "Request";
-        String responseTopicName = "rr/" + serviceName + "Reply";
+        String requestTopicName = toDdsServiceTopicName("rq", serviceName, "Request");
+        String responseTopicName = toDdsServiceTopicName("rr", serviceName, "Reply");
 
         Topic<Req> requestTopic = participant.createTopic(requestTopicName, requestType, requestTypeSupport);
         Topic<Res> responseTopic = participant.createTopic(responseTopicName, responseType, responseTypeSupport);
