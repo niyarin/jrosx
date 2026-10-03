@@ -3,7 +3,7 @@ package jrosx;
 import ddsj.dds.core.DataReader;
 import ddsj.dds.core.DataWriter;
 import ddsj.dds.sample.Sample;
-import ddsj.rtps.message.SampleIdentity;
+import ddsj.dds.exception.ReturnCode;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -41,23 +41,13 @@ public class ServiceServer<Req, Res> implements AutoCloseable {
      */
     public boolean spinOnce() {
         Optional<Sample<Req>> sample = requestReader.takeNextSample();
-        if (sample.isPresent()) {
-            Req request = sample.get().data();
-            Res response = handler.apply(request);
-
-            // For DDS-RPC: send response with related_sample_identity
-            // Use GUID from request's related_sample_identity (client's response reader GUID)
-            // Use sequence number from request's DATA writerSN (not from Inline QoS which may be garbage)
-            Optional<SampleIdentity> relatedId = sample.get().relatedSampleIdentity();
-            if (relatedId.isPresent()) {
-                // Combine: client's response reader GUID + request's writerSN
-                SampleIdentity responseId = new SampleIdentity(
-                        relatedId.get().writerGuid(),
-                        sample.get().writerSequenceNumber());
-                responseWriter.writeWithRelatedSampleIdentity(response, responseId);
-            } else {
-                // Fallback for non-RPC or jros-to-jros
-                responseWriter.write(response);
+        if (sample.isPresent() && sample.get().hasValidData()) {
+            var request = sample.get();
+            var identity = RpcIdentity.request(request);
+            Res response = handler.apply(request.data());
+            var code = responseWriter.writeWithRelatedSampleIdentity(response, identity);
+            if (code != ReturnCode.OK) {
+                throw new IllegalStateException("Service response write failed: " + serviceName + ": " + code);
             }
             return true;
         }

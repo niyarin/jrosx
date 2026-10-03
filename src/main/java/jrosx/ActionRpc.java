@@ -14,10 +14,7 @@ final class ActionRpc {
     private ActionRpc() {}
 
     static SampleIdentity requestIdentity(Sample<?> request) {
-        // Fast DDS requests may carry a reply identity. Otherwise use the actual source.
-        var guid = request.relatedSampleIdentity().map(SampleIdentity::writerGuid)
-                .or(() -> request.writerGuid()).orElseThrow(() -> new IllegalArgumentException("Missing request identity"));
-        return new SampleIdentity(guid, request.writerSequenceNumber());
+        return RpcIdentity.request(request);
     }
 
     static final class Client<Q, S> implements AutoCloseable {
